@@ -1,95 +1,88 @@
-const model = require('../models/user.model.js')
+const model = require('../models/user.js')
 const global = require('../models/global.model.js')
 const connection = require('../database/database.js')
 const helpers = require('../helpers/global.helper.js')
+const bcrypt = require('bcryptjs');
+const User = require("../models/user");
+const jwt = require('jsonwebtoken');
 function getUsers(req, res){
-    connection.query("SELECT * FROM users", function (err, data, fields) {
-        // if any error while executing above query, throw error
-        if (err) throw err;
-        // if there is no error, you have the result
-        console.log(fields)
-
-        if(helpers.isEmptyObject(data)){
+   try{
+    User.find({},(err,result)=>{
+        if(err) res.send({
+            status:"error",
+            statusCode:404,
+            error:err
+        })
             res.send({
                 status:"success",
-                statusCode:204,
-                data:"Not found"
-            });
-        }else{
-            res.send({
-                status:"success",
-                statusCode:204,
-                data:data
-            })
-        }
-       
-      });
+                statusCode:200,
+                data:result
+            })  
+    })
+   }catch(err){
+       console.log(err)
+   }
 }
 function getSingleUser(req, res){
-    const id = req.body.id;
-    connection.query(`SELECT * FROM users WHERE id = ${id}`, function (err, data, fields) {
-        if (err) throw err;
-        if(helpers.isEmptyObject(data)){
-            res.send({
-                status:"success",
-                statusCode:204,
-                data:"Not found"
-            });
-        }else{
-            res.send({
-                status:"success",
-                statusCode:204,
-                data:data
+    const id = req.params.id;
+    console.log(id)
+    try{
+        User.findById(id,(err, user)=>{
+            if(err) res.send({
+                status:"error",
+                statusCode:404,
+                error:err
             })
-        }
-      
-      });
+            if(user){
+                res.send({
+                    status:"success",
+                    statusCode:200,
+                    message:"Data found",
+                    data:user
+                })  
+            }else{
+                 res.send({
+                    status:"success",
+                    statusCode:200,
+                    message:"Data not found"
+                })  
+            }
+               
+        })
+    }catch(e){
+        console.log(e)
+    }
+   
 }
-function postUser(req, pres, next){
-    const insertData ={
+function updateUser(req, res, next){
+    const id =req.body.id;
+    const updateData ={
         'email':req.body.email,
         'name':req.body.name,
         'username':req.body.username,
-        'password':req.body.password
     }
-
-    connection.query("INSERT INTO users SET ?",insertData, (err, res) => {
-        if (err) {
-            pres.send(err)
-        }
-        pres.send({
-            'status':"successfully inserted",
-            'statusCode':201,
-        })
-        console.log("created tutorial: ", { id: res});
-      });
-
-}
-function updateUser(req, res, next){
-    // const updateData ={
-    //     'email':req.body.email,
-    //     'name':req.body.name,
-    //     'username':req.body.username,
-    //     'password':req.body.password
-    // }
-    // connection.query("INSERT INTO users SET ?",updateData, (err, res) => {
-    //     if (err) {
-    //         pres.send(err)
-    //     }
-    //     pres.send({
-    //         'status':"successfully inserted",
-    //         'statusCode':201,
-    //     })
-    //     console.log("created tutorial: ", { id: res});
-    //   });
+    User.findByIdAndUpdate(id, updateData,(err,data)=>{
+        console.log(data)
+        if(err) return res.send(err)
+        if(data) return res.send(data)
+       
+    })
 }
 function deleteUser(req, res, next){
-    res.send(`respond with a resource on Delete user controller`);
+    const id = req.params.id;
+   User.findByIdAndRemove(id,(err)=>{
+        if(err) return res.send(err)
+        return res.send({
+            status:"success",
+            status_code:200,
+            message:"User deleted"
+        })
+   })
 }
+
 module.exports = {
     getUsers,
     getSingleUser,
-    postUser,
     updateUser,
     deleteUser
 };

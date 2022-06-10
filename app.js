@@ -1,10 +1,14 @@
 var createError = require('http-errors');
-var express = require('express');
+var express = require('express')
+const dotenv = require("dotenv");
+dotenv.config();
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
+require("dotenv").config();
+require("./config/database").connect();
 var homeRouter = require('./routes/index.router.js');
+var authRouter = require('./routes/auth.router.js');
 var usersRouter = require('./routes/users.router.js');
 
 var app = express();
@@ -20,6 +24,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', homeRouter);
+app.use('/', authRouter);
 app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler

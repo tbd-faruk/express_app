@@ -1,9 +1,9 @@
 var express = require('express');
 var homeRouter = express.Router();
-
+const auth = require("../middleware/auth");
 /* GET home page. */
-homeRouter.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+homeRouter.get('/', auth,(req, res, next) =>{
+  res.send('Welcome My Home page')
 });
 
 module.exports = homeRouter;
