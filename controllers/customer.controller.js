@@ -51,16 +51,10 @@ function getCustomers(req, res){
        console.log(err)
    }
 }
-function getSingleCustomer(req, res){
-    const id = req.params.id;
-    console.log(id)
+function getByEmailCustomer(req, res, next){
+    const email = req.body.email;
     try{
-        customer.findById(id,(err, user)=>{
-            if(err) res.send({
-                status:"error",
-                statusCode:404,
-                error:err
-            })
+        customer.findOne({ email},(err, user)=>{
             if(user){
                 res.send({
                     status:"success",
@@ -82,30 +76,92 @@ function getSingleCustomer(req, res){
     }
    
 }
+function getByPhoneCustomer(req, res, next){
+    const phone = req.body.phone;
+    console.log(phone)
+    try{
+        customer.findOne({ phone},(err, user)=>{
+            if(user){
+                res.send({
+                    status:"success",
+                    statusCode:200,
+                    message:"Data found",
+                    data:user
+                })  
+            }else{
+                 res.send({
+                    status:"error",
+                    statusCode:404,
+                    message:"Data not found"
+                })  
+            }
+               
+        })
+    }catch(e){
+        console.log(e)
+    }
+   
+}
+function getSingleCustomer(req, res, next){
+    const id = req.params.id;
+    try{
+        customer.findById(id,(err, user)=>{
+            if(user){
+                res.send({
+                    status:"success",
+                    statusCode:200,
+                    message:"Data found",
+                    data:user
+                })  
+            }else{
+                 res.send({
+                    status:"success",
+                    statusCode:200,
+                    message:"Data not found"
+                })  
+            }
+               
+        })
+    }catch(e){
+        console.log(e)
+    }
+   
+}
+
 function updateCustomer(req, res, next){
     const id =req.body.id;
+    const { name,email,phone,dob,address} = req.body;
+  
     const updateData ={
-        'email':req.body.email,
-        'name':req.body.name,
-        'phone':req.body.phone,
-        'address':req.body.address,
-        'dob':req.body.dob,
+        'email':email,
+        'name':name,
+        'phone':phone,
+        'address':address,
+        'dob':dob,
     }
+    if (!(email && phone && name && dob && address)) {
+        res.send("All input is required");
+      }
     customer.findByIdAndUpdate(id, updateData,(err,data)=>{
-        console.log(data)
-        if(err) return res.send(err)
+        if(!data) return res.send({"status":"error","message":"Customer Not found"})
         if(data) return res.send(data)
        
     })
 }
 function deleteCustomer(req, res, next){
     const id = req.params.id;
+    const findCustomer = customer.findById(id,(err, data) =>{
+        if(err) return next(err)
+
+        if(!data) return res.status(200).send({'status':'success',"message":"Customer not found","statusCode":200})
+    });
     customer.findByIdAndRemove(id,(err)=>{
+        console.log()
         if(err) return res.send(err)
         return res.send({
             status:"success",
             status_code:200,
-            message:"User deleted"
+            message:"Customer deleted"
         })
    })
 }
@@ -115,5 +171,7 @@ module.exports = {
     getCustomers,
     getSingleCustomer,
     updateCustomer,
-    deleteCustomer
+    deleteCustomer,
+    getByEmailCustomer,
+    getByPhoneCustomer
 };
