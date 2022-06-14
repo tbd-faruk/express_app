@@ -6,6 +6,8 @@ const userSchema = new mongoose.Schema({
   phone: { type: String, unique: true },
   address: { type: String },
   dob: { type: String },
+  zipcode: { type: String,default: null},
+  state: { type: String,default: null},
   status: { type: String, default:1 },
 });
 

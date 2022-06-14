@@ -77,8 +77,7 @@ function getByEmailCustomer(req, res, next){
    
 }
 function getByPhoneCustomer(req, res, next){
-    const phone = req.body.phone;
-    console.log(phone)
+    const phone = req.headers.phone;
     try{
         customer.findOne({ phone},(err, user)=>{
             if(user){
@@ -129,8 +128,8 @@ function getSingleCustomer(req, res, next){
 }
 
 function updateCustomer(req, res, next){
-    const id =req.body.id;
-    const { name,email,phone,dob,address} = req.body;
+    const id =req.body._id;
+    const { name,email,phone,dob,address,zipcode,state} = req.body;
   
     const updateData ={
         'email':email,
@@ -138,13 +137,15 @@ function updateCustomer(req, res, next){
         'phone':phone,
         'address':address,
         'dob':dob,
+        'zipcode':zipcode,
+        'state':state
     }
     if (!(email && phone && name && dob && address)) {
         res.send("All input is required");
       }
-    customer.findByIdAndUpdate(id, updateData,(err,data)=>{
+    customer.findByIdAndUpdate(id, updateData,{new:true},(err,data)=>{
         if(!data) return res.send({"status":"error","message":"Customer Not found"})
-        if(data) return res.send(data)
+        if(data) return res.send({"status":"success","statusCode":200, "message":"Update successfully","data":data})
        
     })
 }
