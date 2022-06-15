@@ -17,7 +17,7 @@ async function postCustomers(req, res){
       if (oldUser || oldPhone) {
         return res.send("Customer Already Exist. Please Login");
       }
-  
+   
     
       const user = await customer.create({
         name,
@@ -129,23 +129,28 @@ function getSingleCustomer(req, res, next){
 
 function updateCustomer(req, res, next){
     const id =req.body._id;
-    const { name,email,phone,dob,address,zipcode,state} = req.body;
-  
-    const updateData ={
-        'email':email,
-        'name':name,
-        'phone':phone,
-        'address':address,
-        'dob':dob,
-        'zipcode':zipcode,
-        'state':state
-    }
-    if (!(email && phone && name && dob && address)) {
-        res.send("All input is required");
-      }
+    // console.log(req.body)
+    // const { name,email,phone,dob,address,zipcode,state,lose_weight,body_recomp,gain_muscle} = req.body;
+    const updateData =req.body;
+    // const updateData ={
+    //     'email':email,
+    //     'name':name,
+    //     'phone':phone,
+    //     'address':address,
+    //     'dob':dob,
+    //     'zipcode':zipcode,
+    //     'lose_weight':lose_weight,
+    //     'body_recomp':body_recomp,
+    //     'gain_muscle':gain_muscle,
+    //     'state':state
+    // }
+    // if (!(email && phone && name && dob && address)) {
+    //     res.send("All input is required");
+    //   }
     customer.findByIdAndUpdate(id, updateData,{new:true},(err,data)=>{
         if(!data) return res.send({"status":"error","message":"Customer Not found"})
         if(data) return res.send({"status":"success","statusCode":200, "message":"Update successfully","data":data})
+        
        
     })
 }
